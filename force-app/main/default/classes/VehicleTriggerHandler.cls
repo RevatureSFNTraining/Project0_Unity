@@ -1,0 +1,28 @@
+public class VehicleTriggerHandler {
+
+    public static void checkContractStatus(List<Vehicle__c> vehicles) {
+        //Check contracts that involve this vehicle, and check if the contract is closed.
+        for (Vehicle__c vehicle : vehicles) {
+            //Skip if status is set to 'Checked Out'.
+            if (vehicle.Status__c.equals('Checked Out'))
+                continue;
+            
+            List<Rental_Contract__c> contracts = [SELECT Id, Name, Status__c FROM Rental_Contract__c WHERE Vehicle__c = :vehicle.Id];
+            for (Rental_Contract__c rentalContract: contracts) {
+                if (!rentalContract.Status__c.equals('Closed'))
+                    vehicle.Status__c.addError('Cannot change status of vehicle while contract is still active:\n' + rentalContract.Name);
+            }
+        }
+    }
+    
+    public static void checkVehicleStatus(List<Vehicle__c> vehicles) {
+        //Checks if vehicles are already checked out.
+        for (Vehicle__c vehicle: vehicles) {
+            if (vehicle.Status__c.equals('Checked Out')) {
+                //Prevent stationing a vehicle to a depot.
+                if (vehicle.Stationed_Depot__c != null)
+                    vehicle.Stationed_Depot__c.addError('Cannot station a checked out vehicle to a depot.');
+            }
+        }
+    }
+}
