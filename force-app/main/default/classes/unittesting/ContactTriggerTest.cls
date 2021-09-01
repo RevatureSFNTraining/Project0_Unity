@@ -21,6 +21,20 @@ private class ContactTriggerTest {
         }
     }
 
+    @isTest static void ageChangeTest() {
+        try {
+            Contact someCustomer = [SELECT BirthDate FROM Contact LIMIT 1];
+            someCustomer.BirthDate = Date.today().addYears(-15); //Exactly 15 years old.
+            update someCustomer;
+
+            System.assert(false, 'Customer was somehow able to register at under the legal age of 21.');
+        }
+        catch (DMLException e) {
+            System.assert(e.getMessage().contains('Customer is not 21 years of age or above.'));
+        }
+
+    }
+
     @isTest static void insertTest() {
         List<Contact> customers = new List<Contact>();
         customers.add(new Contact(FirstName = 'Ronald', LastName = 'McDonald', Birthdate = Date.newInstance(1940, 5, 15), Email = 'ronald@mcdonalds.com'));
