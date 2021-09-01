@@ -9,6 +9,7 @@ public class RentalContractTriggerHandler {
     
     /*
      * Grabs a list of Rental Contracts to be inserted, and check for any overdue contracts for their associated customers.
+     * This will not allow customers to create new contracts unless they have resolved their overdue contracts.
      * @param contracts - A list of Contacts to be inserted.
      * @return A boolean value that determines if there is an overdue contract.
      */
