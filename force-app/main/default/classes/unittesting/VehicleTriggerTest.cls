@@ -30,6 +30,8 @@ private class VehicleTriggerTest {
             List<Vehicle__c> vehicles = [SELECT Status__c FROM Vehicle__c WHERE Status__c = 'Checked Out'];
             vehicles[0].Status__c = 'Checked In';
             update vehicles[0];
+
+            System.assert(false, 'Was able to somehow change the vehicle status while it was checked out. Perhaps there was no active rental contract associated with it?');
         }
         catch (DMLException e) {
             System.assert(e.getMessage().contains('Cannot change status of vehicle while contract is still active: '));
@@ -42,6 +44,8 @@ private class VehicleTriggerTest {
             Depot__c depot = [SELECT Id FROM Depot__c LIMIT 1];
             vehicles[0].Stationed_Depot__c = depot.Id;
             update vehicles[0];
+
+            System.assert(false, 'Was able to station a checked out vehicle to a depot.');
         }
         catch (DMLException e) {
             System.assert(e.getMessage().contains('Cannot station a checked out vehicle to a depot.'));

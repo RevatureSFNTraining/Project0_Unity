@@ -51,6 +51,8 @@ private class ContactTriggerTest {
         try {
             Contact underagedCustomer = new Contact(FirstName = 'Fred', LastName = 'Parker', Birthdate = Date.newInstance(2000, 10, 2), Email = 'badstudent@someschool.edu'); //Just under 21 years old.
             insert underagedCustomer;
+
+            System.assert(false, 'This customer is not underaged.');
         }
         catch (DMLException e) {
             System.assert(e.getMessage().contains('Customer is not 21 years of age or above.'));
@@ -64,6 +66,8 @@ private class ContactTriggerTest {
             newCustomers.add(new Contact(FirstName = 'Non-suspicious', LastName = 'Person', Birthdate = Date.newInstance(1975, 10, 9), Email = 'some@email.com'));
             newCustomers.add(new Contact(FirstName = 'Luigi', LastName = 'Bertoli', Birthdate = Date.newInstance(1957, 3, 14), Email = 'management@luigispizza.com'));
             insert newCustomers;
+
+            System.assert(false, 'No duplicate emails somehow...');
         }
         catch (DMLException e) {
             System.assert(e.getMessage().contains('A contact with this e-mail already exists.'));
