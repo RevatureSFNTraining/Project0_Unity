@@ -1,3 +1,10 @@
+/*
+ * ContactTrigger
+ * Author: Wayne He
+ * Date Modified: 2021-09-01
+ * Description: Helper class for handling vehicle triggers.
+ */
+
 public class VehicleTriggerHandler {
 
     public static void checkContractStatus(List<Vehicle__c> vehicles) {

@@ -1,3 +1,10 @@
+/*
+ * RentalContractTriggerHandler
+ * Author: Wayne He
+ * Date Modified: 2021-09-01
+ * Description: Helper class for handling rental contact triggers.
+ */
+
 public class RentalContractTriggerHandler {
     
     public static void checkCustomersForOverdueVehicles(List<Rental_Contract__c> contracts) {

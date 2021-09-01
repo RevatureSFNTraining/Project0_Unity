@@ -1,4 +1,11 @@
-public class ContactTriggerHandler {
+/*
+ * ContactTriggerHandler
+ * Author: Wayne He
+ * Date Modified: 2021-09-01
+ * Description: Helper class for handling Contact triggers.
+ */
+
+ public class ContactTriggerHandler {
 
     public static Map<Id, boolean> verifyAges(List<Contact> customers) {
         Map<Id, boolean> customerLegalAgeCheckMap = new Map<Id, boolean>();

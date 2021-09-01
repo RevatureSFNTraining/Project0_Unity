@@ -1,4 +1,11 @@
-@isTest
+/*
+ * ContactTrigger
+ * Author: Wayne He
+ * Date Modified: 2021-09-01
+ * Description: Contains initial test data shared by all test classes.
+ */
+
+ @isTest
 public class TestData {
     
     //Made private and added @TestVisible annotation so only test methods can access it.
