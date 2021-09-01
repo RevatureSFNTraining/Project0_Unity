@@ -25,15 +25,26 @@ private class VehicleTriggerTest {
     }
 
     @isTest static void manualCheckInTest() {
-        List<Vehicle__c> vehicles = [SELECT Status__c FROM Vehicle__c WHERE Status__c = 'Checked Out'];
-        vehicles[0].Status__c = 'Checked In';
-        update vehicles[0];
+
+        try {
+            List<Vehicle__c> vehicles = [SELECT Status__c FROM Vehicle__c WHERE Status__c = 'Checked Out'];
+            vehicles[0].Status__c = 'Checked In';
+            update vehicles[0];
+        }
+        catch (DMLException e) {
+            System.assert(e.getMessage().contains('Cannot change status of vehicle while contract is still active: '));
+        }
     }
 
     @isTest static void manualStationTest() {
-        List<Vehicle__c> vehicles = [SELECT Status__c FROM Vehicle__c WHERE Status__c = 'Checked Out'];
-        Depot__c depot = [SELECT Id FROM Depot__c LIMIT 1];
-        vehicles[0].Stationed_Depot__c = depot.Id;
-        update vehicles[0];
+        try {
+            List<Vehicle__c> vehicles = [SELECT Status__c FROM Vehicle__c WHERE Status__c = 'Checked Out'];
+            Depot__c depot = [SELECT Id FROM Depot__c LIMIT 1];
+            vehicles[0].Stationed_Depot__c = depot.Id;
+            update vehicles[0];
+        }
+        catch (DMLException e) {
+            System.assert(e.getMessage().contains('Cannot station a checked out vehicle to a depot.'));
+        }
     }
 }

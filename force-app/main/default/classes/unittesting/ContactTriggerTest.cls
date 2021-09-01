@@ -48,15 +48,25 @@ private class ContactTriggerTest {
     }
 
     @isTest static void underageCustomerTest() {
-        Contact underagedCustomer = new Contact(FirstName = 'Fred', LastName = 'Parker', Birthdate = Date.newInstance(2000, 10, 2), Email = 'badstudent@someschool.edu'); //Just under 21 years old.
-        insert underagedCustomer;
+        try {
+            Contact underagedCustomer = new Contact(FirstName = 'Fred', LastName = 'Parker', Birthdate = Date.newInstance(2000, 10, 2), Email = 'badstudent@someschool.edu'); //Just under 21 years old.
+            insert underagedCustomer;
+        }
+        catch (DMLException e) {
+            System.assert(e.getMessage().contains('Customer is not 21 years of age or above.'));
+        }
     }
 
     @isTest static void duplicateEmailTest() {
-        List<Contact> newCustomers = new List<Contact>();
-        newCustomers.add(new Contact(FirstName = 'Caroline', LastName = 'Baker', Birthdate = Date.newInstance(1971, 11, 5), Email = 'caroline@bakersbakery.com'));
-        newCustomers.add(new Contact(FirstName = 'Non-suspicious', LastName = 'Person', Birthdate = Date.newInstance(1975, 10, 9), Email = 'some@email.com'));
-        newCustomers.add(new Contact(FirstName = 'Luigi', LastName = 'Bertoli', Birthdate = Date.newInstance(1957, 3, 14), Email = 'management@luigispizza.com'));
-        insert newCustomers;
+        try {
+            List<Contact> newCustomers = new List<Contact>();
+            newCustomers.add(new Contact(FirstName = 'Caroline', LastName = 'Baker', Birthdate = Date.newInstance(1971, 11, 5), Email = 'caroline@bakersbakery.com'));
+            newCustomers.add(new Contact(FirstName = 'Non-suspicious', LastName = 'Person', Birthdate = Date.newInstance(1975, 10, 9), Email = 'some@email.com'));
+            newCustomers.add(new Contact(FirstName = 'Luigi', LastName = 'Bertoli', Birthdate = Date.newInstance(1957, 3, 14), Email = 'management@luigispizza.com'));
+            insert newCustomers;
+        }
+        catch (DMLException e) {
+            System.assert(e.getMessage().contains('A contact with this e-mail already exists.'));
+        }
     }
 }
