@@ -15,9 +15,9 @@ private class ContactTriggerTest {
 
     @isTest static void ageVerifyTest() {
         List<Contact> customers = [SELECT Birthdate FROM Contact];
-        Map<Id, Integer> customerAgeMap = ContactTriggerHandler.verifyAges(customers);
-        for (integer age : customerAgeMap.values()) {
-            System.assert(age >= 21);
+        Map<Id, boolean> customerLegalAgeCheckMap = ContactTriggerHandler.verifyAges(customers);
+        for (boolean isLegalAge : customerLegalAgeCheckMap.values()) {
+            System.assert(isLegalAge);
         }
     }
 
@@ -48,7 +48,7 @@ private class ContactTriggerTest {
     }
 
     @isTest static void underageCustomerTest() {
-        Contact underagedCustomer = new Contact(FirstName = 'Fred', LastName = 'Parker', Birthdate = Date.newInstance(2000, 12, 25), Email = 'badstudent@someschool.edu'); //Just under 21 years old.
+        Contact underagedCustomer = new Contact(FirstName = 'Fred', LastName = 'Parker', Birthdate = Date.newInstance(2000, 10, 2), Email = 'badstudent@someschool.edu'); //Just under 21 years old.
         insert underagedCustomer;
     }
 
