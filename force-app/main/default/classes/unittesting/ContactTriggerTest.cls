@@ -3,14 +3,7 @@ private class ContactTriggerTest {
 
     @TestSetup
     static void makeData() {
-        List<Contact> customers = new List<Contact>();
-        customers.add(new Contact(FirstName = 'Ben', LastName = 'Steward', Birthdate = Date.newInstance(1980, 2, 16), Email = 'some@email.com'));
-        customers.add(new Contact(FirstName = 'John', LastName = 'Warner', Birthdate = Date.newInstance(1967, 6, 2), Email = 'the@email.com'));
-        customers.add(new Contact(FirstName = 'Bob', LastName = 'Builder', Birthdate = Date.newInstance(1977, 10, 24), Email = 'bob@email.com'));
-        customers.add(new Contact(FirstName = 'Billy', LastName = 'Bob', Birthdate = Date.newInstance(1998, 3, 14), Email = 'billy@email.com'));
-        customers.add(new Contact(FirstName = 'Jane', LastName = 'Steward', Birthdate = Date.newInstance(1982, 4, 30), Email = 'some1@email.com'));
-
-        insert customers;
+        insert TestData.getTestData();
     }
 
     @isTest static void ageVerifyTest() {
