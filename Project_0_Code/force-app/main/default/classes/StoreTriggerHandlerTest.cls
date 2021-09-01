@@ -1,101 +1,128 @@
-/*
+//*
 *Name: StoreTriggerHandler.apxc
 *Author: Julia Weakley
 *DateCreated: 8/30/2021
 *DateModified: 8/31/2021
 *Description: 
 *	Tests for StoreTrigger and StoreTriggerHandler
+*	Tests cover StoreTriggerHandler 100%
+* 	Test cover StoreTrigger  66%
 */
 
 @isTest
 private class StoreTriggerHandlerTest {
 
+    // creates 200 store records to use in test
     @testSetup
     static void setup()
     {
-       
+		// Create test account 
         Account sAccount = new Account(); 
-     	sAccount.Name = 'New Account';
+     	  sAccount.Name = 'New Account';
         insert sAccount; 
        
-        
+        // create and fill a list of 200 store records
         List<Store__c> storeList = new List<Store__c>(); 
         for( Integer i=0; i < 200; i++ )
         {
             Store__c store = new Store__c();
-       		store.Account__c = sAccount.Id;
-       		store.Location__c = 'Salt Lake City';  
-       		storeList.add(store);
-        }
+       		  store.Account__c = sAccount.Id;
+       		  store.Location__c = 'Salt Lake City';  
+       	  	storeList.add(store);
+        } // end of for
        
-       insert storeList;
-    }
+        // insert list of stores to test if trigger is successful
+		  insert storeList;
+        
+    } // end of test 
     
-    // positive 
-    // since there are no suppliers the store will not be  have a corresponding inventory
-    // Thus no inventories should have been added
+   
+    // Tests that no inventories will be added when there are 
+    //  no suppliers in org
     @isTest static void createAnInventoryFailTest()
     {
-       Account tempAccount = [SELECT id FROM Account LIMIT 1];
-       List<Store__c> listOfStores = new List<Store__c>();
-	   
+		// Temporary Account used to create store
+		  Account tempAccount = [SELECT id FROM Account LIMIT 1];
+     
+		// Creates two new store to pass to the CreateAnInventory method
        Store__c store = new Store__c(); 
        store.Account__c = tempAccount.Id;
        store.Location__c = 'Salt Lake City';  
-       listOfStores.add(store);
-       
-        Store__c storeTwo = new Store__c(); 
+      
+       Store__c storeTwo = new Store__c(); 
        storeTwo.Account__c = tempAccount.Id;
        storeTwo.Location__c = 'Salt Lake City';  
-       listOfStores.add(storeTwo);
+        
+		//List to populate with new stores created
+		List<Store__c> listOfStores = new List<Store__c>();
+       	listOfStores.add(store);
+       	listOfStores.add(storeTwo);
     
+        
+        // pass list into method to create an inventory
         StoreTriggerHandler.CreateAnInventory( listOfStores); 
         
+        // grab inventories that exist
       	List <Store_Inventory__c>  inven= [SELECT id FROM Store_Inventory__c]; 
+        
+        // no inventories should have been added since there are no suppliers
         System.assertEquals(0, inven.size());
        
-     }
+     } // end of test
     
     
-    // Positvie and single Action test
-    // with only one store being added we have 1 inventory being created 
+   
+    //	Tests what happens when one store is added. 
+    //	There should be 1 inventory  created 
     @isTest
     static void createAnInventoryTest()
     {  
-         Store__c storeNameToTake = [SELECT Id, Name FROM Store__c LIMIT 1];
-        Store_Supplier__c  aNewSupplier = new Store_Supplier__c(); 
-        aNewSupplier.Store_Number__c = storeNameToTake.Name; 
-        aNewSupplier.Name = 'testsupplier'; 
-        insert aNewSupplier;  
-        
-        
-        Account tempAccount = [SELECT id FROM Account LIMIT 1];
-       List<Store__c> listOfStores = new List<Store__c>();
-	   
-       Store__c testStore = [SELECT Id, Name FROM Store__c LIMIT 1];   
-       listOfStores.add(testStore);
-      
-        StoreTriggerHandler.CreateAnInventory( listOfStores); 
-           
-      List <Store_Inventory__c>  inven= [SELECT Id FROM Store_Inventory__c]; 
-      System.assertEquals(1, inven.size());
-
-    }
-    
-    // Bulk Test and Postive 
-    // Looking for all 200 inventories to be added for the 200 stores
-    @isTest
-    static void createManyInventories()
-    {
+        // create supplier to create inventory later
         Store__c storeNameToTake = [SELECT Id, Name FROM Store__c LIMIT 1];
         Store_Supplier__c  aNewSupplier = new Store_Supplier__c(); 
         aNewSupplier.Store_Number__c = storeNameToTake.Name; 
         aNewSupplier.Name = 'testsupplier'; 
         insert aNewSupplier;  
         
+		// List of Store to add inventory for
+		List<Store__c> listOfStores =  [SELECT Id, Name FROM Store__c LIMIT 1];   
+      
+		// call to method that creates inventory based on store and supplier
+        StoreTriggerHandler.CreateAnInventory( listOfStores); 
+         
+        // List of Inventories that exist
+		List <Store_Inventory__c>  inven= [SELECT Id FROM Store_Inventory__c];
+        
+        // Test to see that one inventory was added
+		System.assertEquals(1, inven.size());
+
+    } // end of test
+    
+    
+    // Test to see if 200 inventories will be added when there are 200 stores 
+    @isTest
+    static void createManyInventories()
+    {
+        // Temporary store used to create a supplier record
+        Store__c storeNameToTake = [SELECT Id, Name FROM Store__c LIMIT 1];
+        
+        // create and add a supplier record
+        // Supplier record is needed to create an inventory
+        Store_Supplier__c  aNewSupplier = new Store_Supplier__c(); 
+        aNewSupplier.Store_Number__c = storeNameToTake.Name; 
+        aNewSupplier.Name = 'testsupplier'; 
+        insert aNewSupplier;  
+        
+        // create list of stores to make inventories for
         List<Store__c> listOfStores = [SELECT Id, Name From Store__c]; 
-         StoreTriggerHandler.CreateAnInventory( listOfStores);
-          List <Store_Inventory__c>  inven= [SELECT Id FROM Store_Inventory__c]; 
+        
+        // call function to create inventories
+        StoreTriggerHandler.CreateAnInventory( listOfStores);
+        
+		// Retrieve all inventory records that exist
+		List <Store_Inventory__c>  inven= [SELECT Id FROM Store_Inventory__c];
+        
+        // check that all 200 records made it in
       	System.assertEquals(200, inven.size());   
-    }
-}
+    } // End of Test
+} // End of Test class
