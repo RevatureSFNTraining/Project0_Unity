@@ -1,0 +1,80 @@
+public class CarTriggerHandler extends TriggerHandler {
+
+    public override void beforeInsert() {
+        // check if a company for which a car is tried to be registered
+        // has a vacant spot
+        this.checkVacantSpots(Trigger.new);
+    }
+    
+    public override void afterInsert() {
+        // register a car taking a vacant parking spot
+        this.registerCars(Trigger.new);
+    }
+    
+    private void checkVacantSpots(List<Car__c> carsToProcess) {
+        Set<Id> companyIds = new Set<Id>();
+        
+        for (Car__c carItem : carsToProcess) {
+            companyIds.add(carItem.Company__c);
+        }
+
+        Map<Id, Integer> companyIdToVacantSpots = new Map<Id, Integer>();
+        
+        /*List<Company__c> allCompanies = [
+            SELECT Id, Vacant_Spots__c
+            FROM Company__c
+            WHERE Id IN :companyIds
+        ];*/
+        
+        for (Company__c companyItem : [
+            SELECT Id, Vacant_Spots__c
+            FROM Company__c
+            WHERE Id IN :companyIds
+        ]) {
+            companyIdToVacantSpots.put(companyItem.Id, (Integer)companyItem.Vacant_Spots__c);
+        }
+        
+        for (Car__c carItem : carsToProcess) {
+            if (companyIdToVacantSpots.get(carItem.Company__c) == 0) {
+               carItem.addError('Your company does not have any vacant spots.'); 
+            }
+            /*for (Company__c companyItem : allCompanies) {
+                if (carItem.Company__c == companyItem.Id) {
+                    if (companyItem.Vacant_Spots__c == 0) {
+                        carItem.addError('Your company does not have any vacant spots.');
+                    }
+                    break;
+                }
+            }*/
+        }
+    }
+
+    private void registerCars(List<Car__c> carsToRegister) {
+        // querry vacant (Is_Vacant__c) Parking Spots (Parking_Spot__c)
+        // for companies
+        
+        
+        list<Car__c> vacantSpots = [
+        SELECT Is_Vacant__c
+        FROM Parking_Spots__c, Company__c
+        WHERE Is_Vacant = TRUE
+        ];
+        
+        
+        // assign a car to a vacant parking spot
+        
+        for (Car_c car : vacantSpots){
+        vacantSpots.add[car]
+        }
+                
+        // update modified parking spots
+        
+        system.debug(vacantSpots); 
+        
+        
+        
+        
+        //
+    }
+
+}
