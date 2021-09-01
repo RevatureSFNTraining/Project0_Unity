@@ -3,7 +3,7 @@ private class ContactTriggerTest {
 
     @TestSetup
     static void makeData() {
-        insert TestData.getTestData();
+        TestData.createTestData();
     }
 
     @isTest static void ageVerifyTest() {
