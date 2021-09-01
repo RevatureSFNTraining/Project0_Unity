@@ -1,4 +1,4 @@
-//*
+/*
 *Name: StoreTriggerHandler.apxc
 *Author: Julia Weakley
 *DateCreated: 8/30/2021
@@ -18,7 +18,7 @@ private class StoreTriggerHandlerTest {
     {
 		// Create test account 
         Account sAccount = new Account(); 
-     	  sAccount.Name = 'New Account';
+     	sAccount.Name = 'New Account';
         insert sAccount; 
        
         // create and fill a list of 200 store records
@@ -26,13 +26,13 @@ private class StoreTriggerHandlerTest {
         for( Integer i=0; i < 200; i++ )
         {
             Store__c store = new Store__c();
-       		  store.Account__c = sAccount.Id;
-       		  store.Location__c = 'Salt Lake City';  
-       	  	storeList.add(store);
+       		store.Account__c = sAccount.Id;
+       		store.Location__c = 'Salt Lake City';  
+       		storeList.add(store);
         } // end of for
        
         // insert list of stores to test if trigger is successful
-		  insert storeList;
+		insert storeList;
         
     } // end of test 
     
@@ -42,7 +42,7 @@ private class StoreTriggerHandlerTest {
     @isTest static void createAnInventoryFailTest()
     {
 		// Temporary Account used to create store
-		  Account tempAccount = [SELECT id FROM Account LIMIT 1];
+		Account tempAccount = [SELECT id FROM Account LIMIT 1];
      
 		// Creates two new store to pass to the CreateAnInventory method
        Store__c store = new Store__c(); 
@@ -124,5 +124,24 @@ private class StoreTriggerHandlerTest {
         
         // check that all 200 records made it in
       	System.assertEquals(200, inven.size());   
+    } // End of Test
+    
+    
+    // if a empty list is passed into the trigger helper method it is handled correclty 
+    // and no inventory is added
+     @isTest
+    static void testForEmpty()
+    {
+         // create list of stores to make inventories for
+        List<Store__c> listOfStores = new List<Store__c>();
+        
+        // call helper method with empty list
+        StoreTriggerHandler.CreateAnInventory(listOfStores);
+        
+		// Retrieve all inventory records that exist
+		List <Store_Inventory__c>  inven= [SELECT Id FROM Store_Inventory__c];
+        
+        // check that no records were made
+      	System.assertEquals(0, inven.size());   
     } // End of Test
 } // End of Test class
