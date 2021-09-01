@@ -1,0 +1,60 @@
+public class WorkerTriggerHandler extends TriggerHandler {
+
+    public override void afterInsert() {
+        System.debug('\n\n --- WorkerTriggerHandler - afterInsert - start ---'
+                    +'\n - Trigger.new: ' + Trigger.new
+                    +'\n');
+        
+        this.sendGreatingEmails(Trigger.new);
+        
+        System.debug('\n\n --- WorkerTriggerHandler - afterInsert - end ---'
+                    +'\n - Trigger.new: ' + Trigger.new
+                    +'\n');
+    }
+    
+    private void sendGreatingEmails(List<Worker__c> workersToProcess) {
+        System.debug('\n\n --- WorkerTriggerHandler - sendGreatingEmails - start ---'
+                    +'\n - workersToProcess: ' + workersToProcess
+                    +'\n');
+        if (workersToProcess == null || workersToProcess.isEmpty()) return;
+        List<Messaging.SingleEmailMessage> semList = new List<Messaging.SingleEmailMessage>();
+        //List<Worker__c> processedWorkers = new List<Worker__c>();
+        for (Worker__c workerItem : workersToProcess) {
+            if (String.isBlank(workerItem.Email__c)) continue;
+            //if (workerItem.RecordTypeId == Schema.SObjectType.Worker__c.getRecordTypeInfosByName().get('Contractor').getRecordTypeId()) continue;
+            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+    
+            // Strings to hold the email addresses to which you are sending the email.
+            String[] toAddresses = new String[] {workerItem.Email__c};
+            
+            // Assign the addresses for the To and CC lists to the mail object.
+            mail.setToAddresses(toAddresses);
+            
+            // Specify the subject line for your email address.
+            mail.setSubject('Greeting subject');
+            
+            String plainTextBody = ''
+                +'Hello ' + workerItem.Name + ','
+                +'\nYou were added to ... at ' + workerItem.CreatedDate
+                +'';
+            System.debug('\n\n --- WorkerTriggerHandler - sendGreatingEmails - 1 ---'
+                    +'\n - workerItem: ' + workerItem
+                    +'\n - plainTextBody: ' + plainTextBody
+                    +'\n');
+            // Specify the text content of the email.
+            mail.setPlainTextBody(plainTextBody);
+            semList.add(mail);
+            /*
+            processedWorkers.add(new Worker__c(
+                Id = workerItem.Id,
+                IsGreetingEmailSent__c = true
+            ));
+            */
+        }
+        // Send the email you have created
+        if (!semList.isEmpty()) {
+            Messaging.sendEmail(semList);
+        }
+        //update processedWorkers;
+    }
+}

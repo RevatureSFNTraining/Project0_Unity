@@ -1,0 +1,77 @@
+//ParkingSpot Trigger
+
+public class ParkingSpotTriggerHandler extends TriggerHandler {
+
+    public override void afterInsert() {
+        System.debug('\n\n --- ParkingSpotTriggerHandler - afterInsert ---\n');
+        this.calculateParkingSpots(Trigger.new);
+    }
+    
+    public override void afterUpdate() {
+        System.debug('\n\n --- ParkingSpotTriggerHandler - afterUpdate ---\n');
+        this.calculateParkingSpots(Trigger.new);    
+    }
+    
+    private void calculateParkingSpots(List<Parking_Spot__c> parkingSpotsToProcess) {
+        Set<Id> companyIdsToRecalculate = new Set<Id>();
+        Map<Id, Integer> vacantSpots = new Map<Id, Integer>();
+        Map<Id, Integer> takenSpots = new Map<Id, Integer>();
+        for (Parking_Spot__c psItem : parkingSpotsToProcess) {
+            if (psItem.Company__c != null) {
+                companyIdsToRecalculate.add(psItem.Company__c);
+            }
+            if (!vacantSpots.containsKey(psItem.Company__c)) {
+                vacantSpots.put(psItem.Company__c, 0);
+            }
+            if (!takenSpots.containsKey(psItem.Company__c)) {
+                takenSpots.put(psItem.Company__c, 0);
+            }
+        }
+        
+
+        
+        Map<Id, Integer> currentVacantSpots = new Map<Id, Integer>();
+        Map<Id, Integer> currentTakenSpots = new Map<Id, Integer>();
+        for (Parking_Spot__c psItem : [
+            SELECT Is_Vacant__c, Company__c,
+                Company__r.Vacant_Spots__c, Company__r.Occupied_Spots__c
+            FROM Parking_Spot__c
+            WHERE Company__c IN :companyIdsToRecalculate
+        ]) {
+            if (psItem.Is_Vacant__c) {
+                vacantSpots.put(psItem.Company__c, vacantSpots.get(psItem.Company__c)+1);
+            } else {
+                takenSpots.put(psItem.Company__c, takenSpots.get(psItem.Company__c)+1);
+            }
+            if (!currentVacantSpots.containsKey(psItem.Company__c)) {
+                currentVacantSpots.put(psItem.Company__c, (Integer)psItem.Company__r.Vacant_Spots__c);
+            }
+            if (!currentTakenSpots.containsKey(psItem.Company__c)) {
+                currentTakenSpots.put(psItem.Company__c, (Integer)psItem.Company__r.Occupied_Spots__c);
+            }
+        }
+        System.debug('\n\n --- ParkingSpotTriggerHandler - calculateParkingSpots - 1 ---\n'
+        +'\n - currentVacantSpots: ' + currentVacantSpots
+        +'\n - vacantSpots: ' + vacantSpots
+        +'\n - currentTakenSpots: ' + currentTakenSpots
+        +'\n - takenSpots: ' + takenSpots
+        +'\n');
+        
+        List<Company__c> companiesToUpdate = new List<Company__c>();
+        for (Id companyIdItem : currentTakenSpots.keySet()) {
+            if (currentVacantSpots.get(companyIdItem) != vacantSpots.get(companyIdItem)
+                || currentTakenSpots.get(companyIdItem) != takenSpots.get(companyIdItem)
+            ) {
+                companiesToUpdate.add(new Company__c(
+                    Id = companyIdItem,
+                    Vacant_Spots__c = vacantSpots.get(companyIdItem),
+                    Occupied_Spots__c = takenSpots.get(companyIdItem)
+                ));
+            }
+        }
+        System.debug('\n\n --- ParkingSpotTriggerHandler - calculateParkingSpots - end ---\n'
+        +'\n - companiesToUpdate: ' + companiesToUpdate
+        +'\n');
+        update companiesToUpdate;
+    }
+}

@@ -1,0 +1,50 @@
+//unit test worker
+
+@isTest
+private class WorkerTriggerHandlerTest {
+
+    @isTest
+    private static void afterInsert_negative() {
+        Worker__c w1 = new Worker__c(
+            First_Name__c = 'F', 
+            Last_Name__c = 'L', 
+            Company_ID_Number__c = 1, 
+            Department__c = 'Engineering'
+        );
+        insert w1;
+        
+        System.assertEquals(0, Limits.getEmailInvocations());
+    }
+    
+    @isTest
+    private static void afterInsert_positive() {
+        Worker__c w1 = new Worker__c(
+            First_Name__c = 'F', 
+            Last_Name__c = 'L', 
+            Company_ID_Number__c = 1, 
+            Department__c = 'Engineering',
+            Email__c = 'a.m@g.c'
+        );
+        insert w1;
+        
+        System.assertEquals(1, Limits.getEmailInvocations());
+    }
+    
+    @isTest
+    private static void afterInsert_bulk() {
+        List<Worker__c> workers = new List<Worker__c>();
+        Integer numberOfWorkers = 10;
+        for (Integer i=0; i<numberOfWorkers; i++) {
+            workers.add(new Worker__c(
+                First_Name__c = 'F', 
+                Last_Name__c = 'L', 
+                Company_ID_Number__c = i, 
+                Department__c = 'Engineering',
+                Email__c = 'a.m'+i+'@g.c'
+            ));
+        }
+        insert workers;
+        
+        System.assertEquals(1, Limits.getEmailInvocations());
+    }
+}
