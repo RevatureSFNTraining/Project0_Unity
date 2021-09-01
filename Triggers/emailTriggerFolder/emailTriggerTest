@@ -1,0 +1,73 @@
+
+@isTest private class emailTriggerTest {
+	//single test has a positive test result
+    @isTest static void SingleEmailTest() {
+        Passanger_Accounts__c t = new Passanger_Accounts__c(Name='TestPassenger', Plane_Ticket__c='00002', email__c='testpassanger@passenger.com', Passenger_Phone_number__c='123456789', Address__c= 'Not too far away');
+        
+        insert t;
+        
+        Database.SaveResult sr = Database.insert(t);
+        Integer numFailed = 0;
+        emailTriggerHandler g = new emailTriggerHandler();
+        Test.startTest();
+        if(!sr.isSuccess()){
+            numFailed = 1;
+            Test.stoptest();
+        }
+        
+       
+    }
+    @isTest static void BulkEmailTest(){
+        Passanger_Accounts__c t = new Passanger_Accounts__c(Name='TestPassanger', Plane_Ticket__c='00002', email__c='testpassanger@passanger.com', Passenger_Phone_number__c='123456789', Address__c= 'Not too far away');
+        for(integer b=0; b<200; b++) {
+            if(b < 200){
+        insert t;
+            }
+        }
+        Database.SaveResult sr = Database.insert(t);
+        Integer numFailed = 0;
+        Test.startTest();
+        
+        if(!sr.isSuccess()){
+            numFailed = 1;
+            Test.stoptest();
+        }
+      
+    }
+
+@isTest Static Void RestrictedUserEmailTest() {
+        String uN1 = 'user';
+        profile RU = [SELECT id FROM Profile Where name='Passangers'];
+        
+        User U1 = new User(alias = 'testUser', email='testuser@Jordan.com',
+                          emailencodingkey='UTF-8', lastname = 'Test', languagelocalekey='en_us',
+                          timezonesidkey='america/new_york', localeSidKey='en_us', 
+                          profileId=RU.id, username=uN1);
+        Test.starttest();
+        System.Runas(U1) {
+            System.debug(UserInfo.getUserName());
+            System.debug(UserInfo.GetProfileId());
+            System.debug('Restricted User Test');
+            Test.stoptest();
+        }
+}
+    
+
+ @isTest static void NegativeEmailTest(){
+     
+     try {
+         Passanger_Accounts__c t = new Passanger_Accounts__c(Plane_Ticket__c='00000');{
+           System.debug('Sorry this ticket is unavailable');
+         }
+             
+             }catch(Exception a) { 
+                 Passanger_Accounts__c t = new Passanger_Accounts__c(Passenger_Phone_number__c='00'); {
+                 System.debug('Please enter a valid Phone Number.');
+                     }
+                 
+             }
+
+        }
+        }
+      
+    

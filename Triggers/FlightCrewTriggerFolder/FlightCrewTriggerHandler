@@ -1,0 +1,28 @@
+///////////////////////////////////////////////////////////////
+//
+// Name: FlightCrewtTriggerHandler
+// Author: Jordan Gaten, Team Synergy
+// Created: 08/30/21
+// Updated: 08/31/21
+// Description: Handler for AirportTrigger.
+//
+///////////////////////////////////////////////////////////////
+public class FlightCrewTriggerHandler{ 
+    public static void FlightCrewTriggerMethod() {
+        Map<Flight_Crew__c, Integer> pilotMap = new Map<Flight_Crew__c, Integer>(); 
+        
+        // For loop that defines p as the results of the query
+        
+		 for (Flight_Crew__c p : [SELECT Flight_Crew__c FROM Flight_Crew__c 
+                                  WHERE Flight_Crew__c like 'Pilot']) {
+        
+             for (Integer Flightnum = 1; Flightnum < 99999; Flightnum++ ) {
+             
+                 // puts the flight number and pilot in the pilotList map
+             pilotMap.put(p, Flightnum);
+                
+                             }
+    }
+    }
+
+}

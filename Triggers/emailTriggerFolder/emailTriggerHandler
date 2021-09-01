@@ -1,0 +1,32 @@
+///////////////////////////////////////////////////////////////
+//
+// Name: emailTriggerHandler
+// Author: Jordan Gaten, Team Synergy
+// Created: 08/29/21
+// Updated: 08/31/21
+// Description: Handler logic for PaymentTrigger.
+//
+///////////////////////////////////////////////////////////////
+public class emailTriggerHandler{
+    public static void emailTriggerMeth() {
+        //
+        // Loop iterating query for email and name fields from the passanger account object
+        //
+        for (Passanger_Accounts__c e : [SELECT email__c, Name FROM Passanger_Accounts__c]) {
+            
+            //Set that will hold the name and emails for Flight members 
+            //
+            
+            Set<Passanger_Accounts__c> FlightMembersSet = new Set<Passanger_Accounts__c>();
+            //
+            //// If statement that adds the records from the query if the field is not empty
+            //
+            if(Passanger_Accounts__c.email__c != Null) {
+                
+            FlightMembersSet.add(e);
+            }
+        }
+       
+}
+
+}
