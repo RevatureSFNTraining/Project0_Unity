@@ -7,7 +7,14 @@
 
 public class RentalContractTriggerHandler {
     
-    public static void checkCustomersForOverdueVehicles(List<Rental_Contract__c> contracts) {
+    /*
+     * Grabs a list of Rental Contracts to be inserted, and check for any overdue contracts for their associated customers.
+     * @param contracts - A list of Contacts to be inserted.
+     * @return A boolean value that determines if there is an overdue contract.
+     */
+    public static boolean checkCustomersForOverdueVehicles(List<Rental_Contract__c> contracts) {
+        boolean noOverdueVehicles = true;
+
         //Get customers from the list of contracts.
         Set<Id> customers = new Set<Id>();
         for (Rental_Contract__c rentalContract : contracts) {
@@ -18,10 +25,20 @@ public class RentalContractTriggerHandler {
         integer overdueContracts = [SELECT COUNT() FROM Rental_Contract__c WHERE Customer__c IN :customers AND Status__c = 'Overdue'];
         if (overdueContracts > 0) {
             contracts[0].addError('Customer has an overdue contract. Please resolve this before creating a new contract.');
+            noOverdueVehicles = false;
         }
         
+        return noOverdueVehicles;
     }
 
+    /*
+     * Before inserting new contracts, this method makes sure that:
+     * - The vehicle associated with a new contract is not already checked out.
+     * - The contract's issue date does not take place after the current date.
+     * - The contract's expected return date does not take place before the issue date.
+     * Otherwise, it will throw an error and prevent the insert.
+     * @param contracts - A list of Rental Contracts to insert.
+     */
     public static void checkOutVehicle(List<Rental_Contract__c> contracts) {
         Map<Id, Vehicle__c> vehicleMap = getVehicleMap(contracts);
         
@@ -41,6 +58,11 @@ public class RentalContractTriggerHandler {
         }
     }
     
+    /*
+     * Grabs a list of contracts and checks if the actual return dates do not occur before the issue date.
+     * Reject of one of them does.
+     * @param contracts - A list of Rental Contracts to update.
+     */
     public static void checkReturnDate(List<Rental_Contract__c> contracts) {
         //Check if the actual return date takes place before the issue date. Abort if this is true.
         for (Rental_Contract__c rentalContract : contracts) {
@@ -53,6 +75,11 @@ public class RentalContractTriggerHandler {
         }
     }
     
+    /*
+     * Takes in a list of contracts and changes their associated vehicles' statuses depending if they are being checked out or checked in.
+     * @param contracts - A list of Rental Contracts to modify.
+     * @param isCheckingOut - A boolean that states whether to check out those vehicles or not.
+     */
     public static void changeVehicleStatus(List<Rental_Contract__c> contracts, boolean isCheckingOut) {
         Map<Id, Vehicle__c> vehicleMap = getVehicleMap(contracts);
         
@@ -76,6 +103,12 @@ public class RentalContractTriggerHandler {
         }
     }
     
+    /*
+     * Checks to see if the contracts' new expected return dates happen before the old return dates.
+     * Throw an error and reject if one of them does.
+     * @param oldContacts - A list of Rental Contracts with original data.
+     * @param newContacts - A list of the same Rental Contracts with updated data.
+     */
     public static void postponeCheck(List<Rental_Contract__c> oldContracts, List<Rental_Contract__c> newContracts) {
         //Compare expected return dates for the two lists. If the new deadline is earlier than the old one, abort the update.
         for (integer i = 0; i < oldContracts.size(); i++) {
@@ -84,6 +117,12 @@ public class RentalContractTriggerHandler {
         }
     }
     
+    /*
+     * Helper method that generates a map of Vehicles with their record IDs from a given list of contracts.
+     * This will throw an error if two contracts reference the same vehicle, so we want different vehicles for each contract.
+     * @param contracts - A list of Rental Contracts.
+     * @return A map of Vehicle IDs and their associated instances.
+     */
     private static Map<Id, Vehicle__c> getVehicleMap(List<Rental_Contract__c> contracts) {
         //Get vehicles from contract list. Abort if there are duplicates.
         Set<Id> vehicleIds = new Set<Id>();
