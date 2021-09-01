@@ -7,6 +7,11 @@
 
 public class VehicleTriggerHandler {
 
+    /*
+     * Checks if there are not active rental contracts on the vehicles which prevent them from being checked in.
+     * Throws an error in Salesforce if an attempt on changing a vehicle's status is being made while a rental contract is still active.
+     * @param A list of Vehicles to be inserted/updated.
+     */
     public static void checkContractStatus(List<Vehicle__c> vehicles) {
         //Check contracts that involve this vehicle, and check if the contract is closed.
         for (Vehicle__c vehicle : vehicles) {
@@ -22,6 +27,10 @@ public class VehicleTriggerHandler {
         }
     }
     
+    /*
+     * Checks if the vehicles are still being checked out, and prevent stationing them to depots if they still are.
+     * @param A list of Vehicles to be updated.
+     */
     public static void checkVehicleStatus(List<Vehicle__c> vehicles) {
         //Checks if vehicles are already checked out.
         for (Vehicle__c vehicle: vehicles) {

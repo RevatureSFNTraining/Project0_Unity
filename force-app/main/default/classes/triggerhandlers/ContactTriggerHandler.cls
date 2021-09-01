@@ -7,6 +7,12 @@
 
  public class ContactTriggerHandler {
 
+    /*
+     * Grabs a list of contacts, checks if each pass the legal age (21+) for renting out vehicles, and puts the result in a map.
+     * Throws an error in Salesforce if one of the contacts is below the legal age.
+     * @param A list of Contacts to be inserted/updated.
+     * @return A map of customer IDs and a boolean that determines whether each customer is above the legal age.
+     */
     public static Map<Id, boolean> verifyAges(List<Contact> customers) {
         Map<Id, boolean> customerLegalAgeCheckMap = new Map<Id, boolean>();
 
@@ -24,6 +30,11 @@
         return customerLegalAgeCheckMap;
     }
     
+    /*
+     * Checks the database if any of its contacts' emails match the ones that are about to be inserted/updated.
+     * Throws an error in Salesforce if a duplicate email already exists in the database.
+     * @param A list of Contacts to be inserted/updated.
+     */
     public static void checkForDuplicateEmails(List<Contact> customers) {
         //Get E-mails from database and check for duplicates.
         List<Contact> customerDB = [SELECT Id, Email FROM Contact];
@@ -35,6 +46,11 @@
         }
     }
 
+    /*
+     * Helper method that checks a Contact's age by comparing his/her birth date to today's date.
+     * @param A Contact's birth date.
+     * @return A boolean value that determines if the Contact has passed the legal age (21+) or not.
+     */
     private static boolean checkLegalAge(Date birthDate) {
         Date today = Date.today();
         
