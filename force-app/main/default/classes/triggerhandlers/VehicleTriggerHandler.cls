@@ -22,7 +22,7 @@ public class VehicleTriggerHandler {
             List<Rental_Contract__c> contracts = [SELECT Id, Name, Status__c FROM Rental_Contract__c WHERE Vehicle__c = :vehicle.Id];
             for (Rental_Contract__c rentalContract: contracts) {
                 if (!rentalContract.Status__c.equals('Closed'))
-                    vehicle.Status__c.addError('Cannot change status of vehicle while contract is still active:\n' + rentalContract.Name);
+                    vehicle.Status__c.addError('Cannot change status of vehicle while contract is still active: ' + rentalContract.Name);
             }
         }
     }
