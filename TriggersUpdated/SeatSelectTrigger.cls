@@ -1,0 +1,37 @@
+///////////////////////////////////////////////////////////////
+//
+// Name: SeatSelectTrigger
+// Author: Jordan Gaten, Team Synergy
+// Created: 08/29/21
+// Updated: 08/30/21
+// Description: Trigger that enforces limits on the number of seats available per plane at ticket creat.
+//
+///////////////////////////////////////////////////////////////
+trigger SeatSelectTrigger on Plane_Ticket__c (before insert, before update, before delete, after delete, after undelete, after update, after insert) { 
+   switch on trigger.operationtype {
+        
+        when BEFORE_INSERT{
+            SeatSelectTriggerHandler.generalSeats(trigger.new);
+            
+        }
+        when BEFORE_UPDATE{
+            
+        }
+        When BEFORE_DELETE{
+            
+        }
+        when AFTER_INSERT{
+            
+        }
+        when AFTER_UPDATE{
+            
+        }
+        when AFTER_DELETE{
+            
+        }
+        when AFTER_UNDELETE{
+            
+        }
+    }
+	
+}

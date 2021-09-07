@@ -1,0 +1,83 @@
+@isTest private class FlightCrewTriggerTest {
+	//single test has a positive test result
+    @isTest static void SingleFlightTest(){
+        Flight_Crew__c t = new Flight_Crew__c(Name='TestPilot', Flight_Crew__c='Pilot');
+        insert t;
+        
+        Database.SaveResult sr = Database.insert(t);
+        Integer numFailed = 0;
+        FlightCrewTriggerHandler g = new FlightCrewTriggerHandler();
+        Test.startTest();
+        if(!sr.isSuccess()){
+            numFailed = 1;
+            Test.stoptest();
+            system.assertEquals(1, numFailed);
+        }
+        
+    }
+
+    @isTest static void BulkFlightTest(){
+        Flight_Crew__c t = new Flight_Crew__c(Name='TestPilot', Flight_Crew__c='Pilot');
+        List<Flight_Crew__c> testList = new List<Flight_Crew__c>();
+        for(integer b=0; b<100; b++) {
+            
+        
+     if(b < 100){
+        testList.add(t);
+         insert t;
+            }
+        }
+        Database.SaveResult sr = Database.insert(t);
+        Integer numFailed = 0;
+        Test.startTest();
+        
+        if(!sr.isSuccess()){
+            numFailed = 1;
+            Test.stoptest();
+            system.assertEquals(1, numFailed);
+        }
+      
+    }
+
+@isTest public Static Void RestrictedUserFlightCrewTest(){
+        String uN1 = 'user';
+        profile RU = [SELECT id FROM Profile Where name='Passangers'];
+        
+        User U1 = new User(alias = 'testUser', email='testuser@Jordan.com', 
+                          emailencodingkey='UTF-8', lastname = 'Test', languagelocalekey='en_us',
+                          timezonesidkey='america/new_york', localeSidKey='en_us', 
+                          profileId=RU.id, username=uN1);
+        
+        System.Runas(U1) {
+            System.debug(UserInfo.getUserName());
+            System.debug(UserInfo.GetProfileId());
+            System.debug('Restricted User Test');
+        }
+    }
+    
+
+ @isTest static void NegativeFlightCrewTest(){
+        Flight_Crew__c t = new Flight_Crew__c(Name='TestNegative', Flight_Crew__c='Attendant');
+        insert t;
+        
+        Flight_Crew__c C = new Flight_Crew__c(Name='TestNegative2', Flight_Crew__c='Co Pilot');
+        insert C;
+        
+        Database.SaveResult sr = Database.insert(t);
+        Integer numFailed = 0;
+        
+        Database.SaveResult sr2 = Database.insert(C);
+        Integer numFailed2 = 0;
+        
+     Test.startTest();
+        if(!sr.isSuccess()){
+            numFailed = 1;
+            if(!sr2.isSuccess()){
+            numFailed2 = 1;
+                Test.stopTest();
+        }
+        }
+      
+    }
+
+}
