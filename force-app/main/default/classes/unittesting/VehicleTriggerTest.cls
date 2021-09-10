@@ -18,12 +18,6 @@ private class VehicleTriggerTest {
         insert newVehicle;
     }
 
-    @isTest static void changeStatusTest() {
-        List<Vehicle__c> vehicles = [SELECT Status__c FROM Vehicle__c WHERE Status__c != 'Checked Out'];
-        vehicles[0].Status__c = 'Checked Out';
-        update vehicles[0];
-    }
-
     @isTest static void manualCheckInTest() {
 
         try {
