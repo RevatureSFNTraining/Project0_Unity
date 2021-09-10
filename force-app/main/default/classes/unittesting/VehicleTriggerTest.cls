@@ -38,6 +38,19 @@ private class VehicleTriggerTest {
         }
     }
 
+    @isTest static void manualCheckOutTest() {
+        try {
+            List<Vehicle__c> vehicles = [SELECT Status__c FROM Vehicle__c WHERE Status__c != 'Checked Out'];
+            vehicles[0].Status__c = 'Checked Out';
+            update vehicles[0];
+
+            System.assert(false, 'Was able to somehow manually check out a vehicle without forming a contract...');
+        }
+        catch (DMLException e) {
+            System.assert(e.getMessage().contains('Cannot manually check out vehicles. Please form a rental contract.'));
+        }
+    }
+
     @isTest static void manualStationTest() {
         try {
             List<Vehicle__c> vehicles = [SELECT Status__c FROM Vehicle__c WHERE Status__c = 'Checked Out'];

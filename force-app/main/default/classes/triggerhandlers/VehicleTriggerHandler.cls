@@ -9,20 +9,37 @@ public class VehicleTriggerHandler {
 
     /*
      * Checks if there are not active rental contracts on the vehicles which prevent them from being checked in.
-     * Throws an error in Salesforce if an attempt on changing a vehicle's status is being made while a rental contract is still active.
+     * In addition, check if there are any active rental contracts for vehicles being attempted to be manually checked out.
+     * Throws an error in Salesforce if an attempt on changing a vehicle's status is being made while a rental contract is still active,
+     * or if the vehicle is being manually checked out without an active rental contract.
      * @param vehicles - A list of Vehicles to be inserted/updated.
      */
     public static void checkContractStatus(List<Vehicle__c> vehicles) {
         //Check contracts that involve this vehicle, and check if the contract is closed.
         for (Vehicle__c vehicle : vehicles) {
-            //Skip if status is set to 'Checked Out'.
-            if (vehicle.Status__c.equals('Checked Out'))
-                continue;
-            
             List<Rental_Contract__c> contracts = [SELECT Id, Name, Status__c FROM Rental_Contract__c WHERE Vehicle__c = :vehicle.Id];
-            for (Rental_Contract__c rentalContract: contracts) {
-                if (!rentalContract.Status__c.equals('Closed'))
-                    vehicle.Status__c.addError('Cannot change status of vehicle while contract is still active: ' + rentalContract.Name);
+
+            //Check if there is an active contract for vehicles that are checked out'.
+            //Skip vehicle if there is one, otherwise throw an error.
+            if (vehicle.Status__c.equals('Checked Out')) {
+                boolean hasActiveContract = false;
+                for (Rental_Contract__c rentalContract : contracts) {
+                    if (!rentalContract.Status__c.equals('Closed')) {
+                        hasActiveContract = true;
+                        break;
+                    }
+                }
+
+                if (hasActiveContract)
+                    continue;
+                
+                vehicle.Status__c.addError('Cannot manually check out vehicles. Please form a rental contract.');
+            }
+            else {
+                for (Rental_Contract__c rentalContract : contracts) {
+                    if (!rentalContract.Status__c.equals('Closed'))
+                        vehicle.Status__c.addError('Cannot change status of vehicle while contract is still active: ' + rentalContract.Name);
+                }
             }
         }
     }
